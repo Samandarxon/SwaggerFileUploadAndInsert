@@ -1,9 +1,5 @@
 package models
 
-import (
-	"mime/multipart"
-)
-
 type Airport struct {
 	Id           string  `json:"id"`
 	Guid         string  `json:"guid"`
@@ -66,8 +62,8 @@ type CreateAirport struct {
 	Gmt          string  `json:"gmt"`
 }
 type UploadAirport struct {
-	Base string
-	File multipart.FileHeader
+	DST string
+	// File multipart.FileHeader
 }
 
 type UpdateAirport struct {

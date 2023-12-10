@@ -23,6 +23,11 @@ type Config struct {
 
 	ServiceHost     string
 	ServiceHTTPPort string
+	Base            Base
+}
+
+type Base struct {
+	UplodeFN string
 }
 
 func Load() Config {
@@ -41,6 +46,7 @@ func Load() Config {
 	cfg.PostgresDatabase = cast.ToString(getValueOrDefault("POSTGRES_DATABASE", "travel"))
 	cfg.PostgresPassword = cast.ToString(getValueOrDefault("POSTGRES_PASSWORD", "1234"))
 	cfg.PostgresPort = cast.ToString(getValueOrDefault("POSTGRES_PORT", "5432"))
+	cfg.Base.UplodeFN = cast.ToString(getValueOrDefault("UPLOAD_FOLDER", "/api/upload"))
 
 	return cfg
 }

@@ -8,6 +8,9 @@ import (
 	"mime/multipart"
 	"os"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func Read(path string) ([]interface{}, error) {
@@ -112,4 +115,22 @@ func Upload(file *multipart.FileHeader, base string) (string, error) {
 
 	fmt.Println("Uploded")
 	return n, err
+}
+
+func Uploade(c *gin.Context, base string) (string, error) {
+	file, _ := c.FormFile("file")
+
+	dir, err := os.Getwd()
+	file_name := fmt.Sprintf("%s - %s", uuid.New(), file.Filename)
+	dst := fmt.Sprintf("%s%s/%s", dir, base, file_name)
+	// fmt.Printf("%+v\n", file.Filename)
+	if err != nil {
+		return "", err
+	}
+
+	if err := c.SaveUploadedFile(file, dst); err != nil {
+		return "", err
+	}
+	return dst, nil
+
 }

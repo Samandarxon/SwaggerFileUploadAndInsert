@@ -5,6 +5,7 @@ import (
 	"essy_travel/models"
 	"essy_travel/pkg/helpers"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -353,12 +354,13 @@ func (c *AirportRepo) Delete(req models.AirportPrimaryKey) (string, error) {
 }
 
 func (c *AirportRepo) Upload(req models.UploadAirport) error {
-	fileName, err := helpers.Upload(&req.File, req.Base)
-	if err != nil {
-		return err
-	}
+	defer os.Remove(req.DST)
+	// fileName, err := helpers.Upload(&req.File, req.Base)
+	// if err != nil {
+	// 	return err
+	// }
 
-	dates, err := helpers.ReadAirport(fmt.Sprintf("%s/%s", req.Base, fileName))
+	dates, err := helpers.ReadAirport(req.DST)
 	// fmt.Println(dates)
 	if err != nil {
 		return err
@@ -366,41 +368,39 @@ func (c *AirportRepo) Upload(req models.UploadAirport) error {
 	var (
 		// str   string
 		query = `
-		INSERT INTO airport(
-			"id",
-			"guid",
-			"title",
-			"country_id",
-			"city_id",
-			"latitude",
-			"longitude",
-			"radius",
-			"image",
-			"address",
-			"timezone_id",
-			"country",
-			"city",
-			"search_text",
-			"code",
-			"product_count",
-			"gmt",
-			"updated_at"
-) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,NOW())
-`
+			INSERT INTO airport(
+				"id",
+				"guid",
+				"title",
+				"country_id",
+				"city_id",
+				"latitude",
+				"longitude",
+				"radius",
+				"image",
+				"address",
+				"timezone_id",
+				"country",
+				"city",
+				"search_text",
+				"code",
+				"product_count",
+				"gmt",
+				"updated_at"
+	) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,NOW())
+	`
 	)
 
-	wg := sync.WaitGroup{}
 	t_time := time.Now()
 	for _, data := range dates {
-		// fmt.Println(index, cast.ToStringMap(m))
-		// (Germany,0,2023-09-30T11:00:53.721Z,eca1890b-68c9-408d-bcb7-c1bd5b731130,ZPL,6517ffe239daf5598aef613d,Recklinghausen Hbf Railway Station,Recklinghausen Hbf Railway Station  ZPL    Recklinghausen-ZPL    Germany-DE,e3866f6a-11fd-4ccc-9a47-c3be236fe4b1,98.5319,<nil>,)
+		wg := sync.WaitGroup{}
 		wg.Add(1)
-		// str += "("
+
 		go func(wg *sync.WaitGroup, data models.UpAirport) {
 			defer wg.Done()
 			data.Id = uuid.New().String()
 			// fmt.Printf("%+v", data)
-			fmt.Println(query)
+			// fmt.Println(query)
 			_, _ = c.db.Exec(query,
 				data.Id,
 				data.Guid,

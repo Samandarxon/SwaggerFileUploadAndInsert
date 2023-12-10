@@ -2,6 +2,8 @@ package handler
 
 import (
 	"essy_travel/models"
+	"essy_travel/pkg/helpers"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -156,12 +158,13 @@ func (h *Handler) AirportDelete(c *gin.Context) {
 // @Failure  400 {object} Response{data=string} "We need ID!!"
 // @Failure  404  {object} Response{data=string}  "Can not find file"
 func (h *Handler) UploadAirport(c *gin.Context) {
-	multFile, err := c.FormFile("file")
+	dst, err := helpers.Uploade(c, h.cfg.Base.UplodeFN)
+	fmt.Println("Success", dst)
 	if err != nil {
-		handleResponse(c, 404, "file not")
+		handleResponse(c, 404, err.Error())
 		return
 	}
-	err = h.strg.Airport().Upload(models.UploadAirport{Base: "./api/upload", File: *multFile})
+	err = h.strg.Airport().Upload(models.UploadAirport{DST: dst})
 
 	if err != nil {
 		handleResponse(c, 404, "file is not read: "+err.Error())
